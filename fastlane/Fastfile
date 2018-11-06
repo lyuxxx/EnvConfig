@@ -1,0 +1,111 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+update_fastlane
+
+default_platform(:ios)
+
+def prepare_version(options)
+
+    increment_version_number_in_plist(
+        version_number: options[:version],
+        scheme: options[:scheme]
+    )
+
+    increment_build_number_in_plist(
+        build_number: options[:build],
+        scheme: options[:scheme]
+    )
+
+    # set_info_plist_value(
+    #     path: "./dssp/config/versiondisplay.plist",
+    #     key: "versiondisplay",
+    #     value: options[:versiondisplay]
+    #   )
+
+end
+
+platform :ios do
+  before_all do
+    # ENV["SLACK_URL"] = "https://hooks.slack.com/services/..."
+    cocoapods
+    # carthage
+  end
+
+  # desc "Runs all the tests"
+  # lane :test do
+  #   scan
+  # end
+
+  desc "Submit a new Build to pgyer"
+  lane :pg do |options|
+    # match(type: "appstore") # more information: https://codesigning.guide
+    # increment_build_number
+
+    prepare_version(options)
+
+    full_version = options[:version] + '_' + options[:build]
+
+    scheme = options[:scheme]
+	changelog = options[:changelog]
+	date = Time.new.strftime("%Y%m%d-%H%M")
+  	#packageName = options[:versiondisplay]
+    #configuration = options[:configuration]
+
+    gym({
+      scheme: "#{scheme}",
+      #隐藏没有必要的文件
+      silent: true,
+      # 编译前执行 clean，可减少 ipa 文件大小
+      clean: true,
+      # 指定打包方式，Release 或者 Debug
+      configuration: "Release (#{scheme})",
+      # 指定打包所使用的输出方式，目前支持app-store, package, ad-hoc, enterprise, development
+      export_method: "ad-hoc",
+      # 指定输出文件夹
+      output_directory:"./fastlane/build/pgyer",
+      #指定输出名称
+      output_name: "#{scheme}_#{full_version}_#{date}.ipa",
+      # output_name: "#{packageName}.ipa",
+      # Xcode9将不会允许你访问钥匙串里的内容，除非设置allowProvisioningUpdates
+      export_xcargs: "-allowProvisioningUpdates",
+      export_options: {
+                provisioningProfiles: {
+                    "com.capsa.test" => "testAdHoc",
+                }
+            }
+    })
+
+    pgyer(api_key: "a4652be9ee876e77e6fe971451f6ee78", user_key: "2532883c9c55b42f4a1f0a5abff9dad3", update_description: "#{changelog}")
+    # sh "fir publish './build/fir/#{scheme}_#{full_version}.ipa' -T #{fir_token}"
+    # You can also use other beta testing services here (run `fastlane actions`)
+    
+  end
+
+  # You can define as many lanes as you want
+
+  after_all do |lane|
+    # This block is called, only if the executed lane was successful
+
+    # slack(
+    #   message: "Successfully deployed new App Update."
+    # )
+  end
+
+  error do |lane, exception|
+    # slack(
+    #   message: exception.message,
+    #   success: false
+    # )
+  end
+end

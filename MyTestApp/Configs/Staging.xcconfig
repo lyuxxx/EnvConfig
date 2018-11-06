@@ -1,0 +1,23 @@
+//
+//  Staging.xcconfig
+//  MyTestApp
+//
+//  Created by yxliu on 2018/11/6.
+//  Copyright © 2018 cusc. All rights reserved.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+#include "Pods/Target Support Files/Pods-MyTestApp/Pods-MyTestApp.debug (staging).xcconfig"
+#include "Pods/Target Support Files/Pods-MyTestApp/Pods-MyTestApp.release (staging).xcconfig"
+
+// Server URL
+ROOT_URL = https:/$()/staging.mytestapp.thoughtbot.com
+
+// Keys
+API_KEY = 89dhdyd93380dkqmoe_hd830dhq
+
+// App Settings
+APP_NAME = MyTestApp (staging)
+APP_BUNDLE_ID = com.capsa.test
