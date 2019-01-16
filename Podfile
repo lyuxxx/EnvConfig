@@ -7,5 +7,6 @@ target 'MyTestApp' do
 
   # Pods for MyTestApp
   pod 'Alamofire'
+  pod 'SnapKit'
 
 end

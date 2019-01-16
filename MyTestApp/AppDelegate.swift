@@ -7,7 +7,7 @@
 //
 
 import UIKit
-
+///article:https://robots.thoughtbot.com/let-s-setup-your-ios-environments
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
